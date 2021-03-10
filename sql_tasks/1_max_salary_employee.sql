@@ -1,1 +1,0 @@
-SELECT * FROM employee WHERE salary in (SELECT MAX(salary) FROM employee);
