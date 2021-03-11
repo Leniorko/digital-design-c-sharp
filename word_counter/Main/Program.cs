@@ -22,26 +22,26 @@ namespace Main
             CounterProcessor counterProcessor = (CounterProcessor)typeof(CounterProcessor)
                 .Assembly.CreateInstance("CounterInDll.CounterProcessor");
 
-            //Stopwatch oneThreadStopwatch = new Stopwatch();
-            //Console.WriteLine("Method with one thread started");
-            //oneThreadStopwatch.Start();
+            Stopwatch oneThreadStopwatch = new Stopwatch();
+            Console.WriteLine("Method with one thread started");
+            oneThreadStopwatch.Start();
 
             Dictionary<String, int> sortedWordsFrequency = (Dictionary<string, int>)counterProcessor.GetType()
                 .GetMethod("computeWords", BindingFlags.NonPublic | BindingFlags.Instance)
                 .Invoke(counterProcessor,new object[] { doc });
 
-            //oneThreadStopwatch.Stop();
-            //Console.WriteLine($"Method with one thread ended with time: {oneThreadStopwatch.Elapsed}");
+            oneThreadStopwatch.Stop();
+            Console.WriteLine($"Method with one thread ended with time: {oneThreadStopwatch.Elapsed}");
 
 
-            //Stopwatch multiThreadStopwatch = new Stopwatch();
-            //Console.WriteLine("Method with multi threads started");
-            //multiThreadStopwatch.Start();
+            Stopwatch multiThreadStopwatch = new Stopwatch();
+            Console.WriteLine("Method with multi threads started");
+            multiThreadStopwatch.Start();
 
-            Dictionary<String, int> publicMultiThreaded = counterProcessor.MultithrededComputeWords(doc);
+            Dictionary<String, int> publicMultiThreaded = counterProcessor.MultiThreadedComputeWords(doc);
 
-            //multiThreadStopwatch.Stop();
-            //Console.WriteLine($"Method with multi threads ended with time: {multiThreadStopwatch.Elapsed}");
+            multiThreadStopwatch.Stop();
+            Console.WriteLine($"Method with multi threads ended with time: {multiThreadStopwatch.Elapsed}");
 
             using (StreamWriter outputFile = new StreamWriter(@"words_frequency.txt"))
             {
@@ -53,6 +53,7 @@ namespace Main
 
             globalStopwatch.Stop();
             Console.WriteLine($"Global timer ended with time: {globalStopwatch.Elapsed}");
+            Console.ReadLine();
         }
     }
 }

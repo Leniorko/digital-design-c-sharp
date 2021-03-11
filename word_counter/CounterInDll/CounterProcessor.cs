@@ -25,10 +25,6 @@ namespace CounterInDll
         private Dictionary<string, int> computeWords(XDocument document)
         {
 
-            Stopwatch oneThreadStopwatch = new Stopwatch();
-            Console.WriteLine("Method with one thread started");
-            oneThreadStopwatch.Start();
-
             var body = document.Root.XPathSelectElements("fb:body/fb:section/fb:p", namespaceManager).ToList();
 
             body.ForEach(delegate (XElement name)
@@ -50,28 +46,21 @@ namespace CounterInDll
                 }
             });
 
-            var sortedWordsFrequency = wordsFrequency.OrderBy(x => x.Value).Reverse().ToDictionary(x => x.Key, x => x.Value);
-
-            oneThreadStopwatch.Stop();
-            Console.WriteLine($"Method with one thread ended with time: {oneThreadStopwatch.Elapsed}");
+            var sortedWordsFrequency =
+                wordsFrequency.OrderBy(x => x.Value).Reverse()
+                    .ToDictionary(x => x.Key, x => x.Value);
 
             return sortedWordsFrequency;
         } 
         
-        public Dictionary<string, int> MultithrededComputeWords(XDocument document)
+        public Dictionary<string, int> MultiThreadedComputeWords(XDocument document)
         {
-
-            Stopwatch multiThreadStopwatch = new Stopwatch();
-            Console.WriteLine("Method with multi threads started");
-            multiThreadStopwatch.Start();
 
             var body = document.Root.XPathSelectElements("fb:body/fb:section/fb:p", namespaceManager).ToList();
 
             var secondThreadEnd = body.Count();
             var firstThreadStart = 0;
-            Console.WriteLine(secondThreadEnd + "");
             var firtsThreadEnd = (int)Math.Round((Double)secondThreadEnd / 2);
-            Console.WriteLine(firtsThreadEnd + "");
             var secondThreadStart = firtsThreadEnd + 1;
 
             var firstHalfThread = new Thread(() => SplitParsingAndWriting(firstThreadStart, firtsThreadEnd, body));
@@ -99,9 +88,6 @@ namespace CounterInDll
             });
 
             var sortedWordsFrequency = wordsFrequency.OrderBy(x => x.Value).Reverse().ToDictionary(x => x.Key, x => x.Value);
-
-            multiThreadStopwatch.Stop();
-            Console.WriteLine($"Method with multi threads ended with time: {multiThreadStopwatch.Elapsed}");
 
             return sortedWordsFrequency;
         }
