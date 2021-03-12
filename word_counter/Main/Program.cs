@@ -53,7 +53,6 @@ namespace Main
 
             globalStopwatch.Stop();
             Console.WriteLine($"Global timer ended with time: {globalStopwatch.Elapsed}");
-            Console.ReadLine();
         }
     }
 }

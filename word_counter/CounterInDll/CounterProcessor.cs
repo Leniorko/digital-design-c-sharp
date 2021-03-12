@@ -55,37 +55,20 @@ namespace CounterInDll
         
         public Dictionary<string, int> MultiThreadedComputeWords(XDocument document)
         {
-
-            var body = document.Root.XPathSelectElements("fb:body/fb:section/fb:p", namespaceManager).ToList();
+            
+            var body = document.Root.XPathSelectElements("fb:body/fb:section/fb:p", namespaceManager).ToList(); 
 
             var secondThreadEnd = body.Count();
             var firstThreadStart = 0;
             var firtsThreadEnd = (int)Math.Round((Double)secondThreadEnd / 2);
             var secondThreadStart = firtsThreadEnd + 1;
 
+            
             var firstHalfThread = new Thread(() => SplitParsingAndWriting(firstThreadStart, firtsThreadEnd, body));
+
             firstHalfThread.Start();
             var secondHalfThread = new Thread(() => SplitParsingAndWriting(secondThreadStart, secondThreadEnd, body));
             secondHalfThread.Start();
-
-            body.ForEach(delegate (XElement name)
-            {
-                MatchCollection matches = regex.Matches(name.Value);
-
-                foreach (Match match in matches)
-                {
-                    var matchAsString = match.ToString().ToLower();
-
-                    if (wordsFrequency.ContainsKey(matchAsString))
-                    {
-                        wordsFrequency[matchAsString] += 1;
-                    }
-                    else
-                    {
-                        wordsFrequency[matchAsString] = 1;
-                    }
-                }
-            });
 
             var sortedWordsFrequency = wordsFrequency.OrderBy(x => x.Value).Reverse().ToDictionary(x => x.Key, x => x.Value);
 
