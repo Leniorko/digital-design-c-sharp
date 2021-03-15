@@ -6,6 +6,7 @@ using System.Xml.Linq;
 using System.Xml.XPath;
 using System.Diagnostics;
 using System;
+using System.Collections.Concurrent;
 using System.Threading;
 
 namespace CounterInDll
@@ -14,7 +15,7 @@ namespace CounterInDll
     {
         private XmlNamespaceManager namespaceManager;
         private Regex regex = new Regex(@"[^ ,.\/\\><:;\-0-9\[\]\(\)=" + "?\"!{ }]+");
-        private Dictionary<string, int> wordsFrequency = new Dictionary<string, int>();
+        private ConcurrentDictionary<string, int> wordsFrequency = new ConcurrentDictionary<string, int>();
 
         public CounterProcessor()
         {
@@ -53,7 +54,7 @@ namespace CounterInDll
             return sortedWordsFrequency;
         } 
         
-        public Dictionary<string, int> MultiThreadedComputeWords(XDocument document)
+        public ConcurrentDictionary<string, int> MultiThreadedComputeWords(XDocument document)
         {
             
             var body = document.Root.XPathSelectElements("fb:body/fb:section/fb:p", namespaceManager).ToList(); 
@@ -70,9 +71,10 @@ namespace CounterInDll
             var secondHalfThread = new Thread(() => SplitParsingAndWriting(secondThreadStart, secondThreadEnd, body));
             secondHalfThread.Start();
 
-            var sortedWordsFrequency = wordsFrequency.OrderBy(x => x.Value).Reverse().ToDictionary(x => x.Key, x => x.Value);
 
-            return sortedWordsFrequency;
+            //var sortedWordsFrequency = wordsFrequency.OrderBy(x => x.Value).Reverse().ToDictionary(x => x.Key, x => x.Value);
+
+            return wordsFrequency;
         }
 
         private void SplitParsingAndWriting(int threadStart, int threadEnd, List<XElement> body)

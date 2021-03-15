@@ -5,6 +5,11 @@ using System.IO;
 using System.Reflection;
 using CounterInDll;
 using System.Diagnostics;
+using System.Text.Json;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using RestSharp;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace Main
 {
@@ -12,47 +17,42 @@ namespace Main
     {
         static void Main(string[] args)
         {
-            Stopwatch globalStopwatch = new Stopwatch();
-            Console.WriteLine("Global Timer Started");
-            globalStopwatch.Start();
-
             var path = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             XDocument doc = XDocument.Load(@$"{path}\tolstoj_lew_nikolaewich-text_0040.fb2");
 
-            CounterProcessor counterProcessor = (CounterProcessor)typeof(CounterProcessor)
-                .Assembly.CreateInstance("CounterInDll.CounterProcessor");
+            //CounterProcessor counterProcessor = (CounterProcessor)typeof(CounterProcessor)
+            //    .Assembly.CreateInstance("CounterInDll.CounterProcessor");
 
-            Stopwatch oneThreadStopwatch = new Stopwatch();
-            Console.WriteLine("Method with one thread started");
-            oneThreadStopwatch.Start();
-
-            Dictionary<String, int> sortedWordsFrequency = (Dictionary<string, int>)counterProcessor.GetType()
-                .GetMethod("computeWords", BindingFlags.NonPublic | BindingFlags.Instance)
-                .Invoke(counterProcessor,new object[] { doc });
-
-            oneThreadStopwatch.Stop();
-            Console.WriteLine($"Method with one thread ended with time: {oneThreadStopwatch.Elapsed}");
+            //Dictionary<String, int> sortedWordsFrequency = (Dictionary<string, int>)counterProcessor.GetType()
+            //    .GetMethod("computeWords", BindingFlags.NonPublic | BindingFlags.Instance)
+            //    .Invoke(counterProcessor,new object[] { doc });
 
 
-            Stopwatch multiThreadStopwatch = new Stopwatch();
-            Console.WriteLine("Method with multi threads started");
-            multiThreadStopwatch.Start();
+            //Dictionary<String, int> publicMultiThreaded = counterProcessor.MultiThreadedComputeWords(doc);
 
-            Dictionary<String, int> publicMultiThreaded = counterProcessor.MultiThreadedComputeWords(doc);
 
-            multiThreadStopwatch.Stop();
-            Console.WriteLine($"Method with multi threads ended with time: {multiThreadStopwatch.Elapsed}");
+            //using (StreamWriter outputFile = new StreamWriter(@"words_frequency.txt"))
+            //{
+            //    foreach (var item in sortedWordsFrequency)
+            //    {
+            //        outputFile.WriteLine($"{item.Key} : {item.Value}");
+            //    }
+            //}
 
-            using (StreamWriter outputFile = new StreamWriter(@"words_frequency.txt"))
-            {
-                foreach (var item in sortedWordsFrequency)
-                {
-                    outputFile.WriteLine($"{item.Key} : {item.Value}");
-                }
-            }
+            var client = new RestClient("https://localhost:44365/");
 
-            globalStopwatch.Stop();
-            Console.WriteLine($"Global timer ended with time: {globalStopwatch.Elapsed}");
+            var actualRequest = new RestRequest("api/Book");
+            actualRequest.AddParameter("text/xml", doc, ParameterType.RequestBody);
+
+            var actualResponce = client.Post(actualRequest);
+
+            var asdad = JsonDocument.Parse(actualResponce.Content);
+
+            var asdad2 = JsonSerializer.Deserialize<Dictionary<string, string>>(actualResponce.Content); 
+
+            Console.WriteLine(actualResponce.Content);
+
+
         }
     }
 }
