@@ -21,19 +21,24 @@ namespace WebAPI.Controllers
         [HttpPost]
         public string BookParsed(string book)
         {
-            string bodyStr = "";
+            // Reading request body
+            string bodyStr;
             using (StreamReader reader = new StreamReader(Request.Body))
             {
                 bodyStr = reader.ReadToEnd();
             }
 
+            // Converting to XDocument
             XDocument xDocumentBook = XDocument.Parse(bodyStr);
 
+            // Creating our Processor and proceeding it
             CounterProcessor counterProcessor = new CounterProcessor();
 
             var counted = counterProcessor.MultiThreadedComputeWords(xDocumentBook);
 
+            // Converting to json
             string json = JsonConvert.SerializeObject(counted);
+
                 
             return json;
         }
